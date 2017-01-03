@@ -10,18 +10,19 @@ app.init = function() {
 };
 
 app.submit = function() {
-  console.log('submit');
+  console.log('submit' + $('#rooms').val());
   
   if (!$('#formText').val()) { 
     console.log('invalid');
     return; 
   }
 
+
   var message = {
     username: $('#formUsername').val() ? $('#formUsername').val()
      : clean(getParameterByName('username')),
     text: clean($('#formText').val()),
-    //roomname: '4chan'
+    roomname: $('#rooms').val()
   };
 
   $.ajax({
@@ -79,10 +80,30 @@ app.getRooms = function() {
   $.ajax({
     url: 'https://api.parse.com/1/classes/messages',
     type: 'GET',
+    data: {orderBy: '-createdAt', limit: '1000'},
     contentType: 'application/json; charset=utf-8;',
     success: function (data) {
       console.log('chatterbox: Rooms receieved');
     }
+  }).done(function(data) {
+    console.log(data);
+
+    var rooms = {};
+
+    data.results.forEach(function(message) {
+      if (!rooms[message.roomname]) {
+        rooms[message.roomname] = true;
+      }
+    });
+
+    _.each(_.keys(rooms), function(room) {
+      console.log(room);
+      room = clean(room);
+
+      var option = $('<option></option>').attr('value', room).text(room);
+      $('#rooms').append(option);
+    });
+
   })
 }
 
