@@ -26,10 +26,21 @@
   <body>
     <div id="main">
       <h1>chatterbox</h1>
+
+
       <!-- Your HTML goes here! -->
     </div>
+
+    <div> 
+      <form id="messageForm">
+        Username: <input type="text" id="formUsername"><br>
+        Message: <input type="text" id="formText"><br>
+      </form>
+      <button type="button" onclick="app.submit()">Enter</button>
+    </div>
+
     <div id="chats">
-      <p id ="messages"></p>
+      <p class ="messages"></p>
 
     </div>
   </body>
