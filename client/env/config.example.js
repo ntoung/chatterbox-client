@@ -3,6 +3,6 @@
 
 // Put your parse application keys here!
 $.ajaxPrefilter(function (settings, _, jqXHR) {
-  jqXHR.setRequestHeader('X-Parse-Application-Id', 'PARSE_APP_ID');
-  jqXHR.setRequestHeader('X-Parse-REST-API-Key', 'PARSE_API_KEY');
+  jqXHR.setRequestHeader('X-Parse-Application-Id', 'dSNCwlniCXIY3dJz4KTuz9ROSUREvvCknGB11ReX');
+  jqXHR.setRequestHeader('X-Parse-REST-API-Key', 'WsWpCFH7gaxcB2B0jVvyKPOcT5NVHriAulknx789');
 });
