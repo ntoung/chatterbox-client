@@ -4,15 +4,22 @@ var app = {};
 app.init = function() {
   app.username;
   app.fetch();
+  app.getRooms();
+
+  setInterval(app.refresh, 10000);
 };
 
 app.submit = function() {
   console.log('submit');
   
-  if ($('#formText').val()) { return; }
+  if (!$('#formText').val()) { 
+    console.log('invalid');
+    return; 
+  }
 
   var message = {
-    username: app.username ? app.username : clean(getParameterByName('username')),
+    username: $('#formUsername').val() ? $('#formUsername').val()
+     : clean(getParameterByName('username')),
     text: clean($('#formText').val()),
     //roomname: '4chan'
   };
@@ -30,15 +37,18 @@ app.submit = function() {
       // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
       console.error('chatterbox: Failed to send message', data);
     }
+  }).done(function() {
+    app.refresh();
   });
 };
 
-app.fetch = function() {
+
+app.fetch = app.refresh = function() {
   $.ajax({
     // This is the url you should use to communicate with the parse API server.
     url: 'https://api.parse.com/1/classes/messages',
     type: 'GET',
-    data: {order: '-createdAt', limit: '5'},
+    data: {order: '-createdAt', limit: '100'},
     contentType: 'application/json; charset=utf-8',
     success: function (data) {
       console.log('chatterbox: Messages received');
@@ -57,11 +67,24 @@ app.fetch = function() {
       return [username, text];
     };
 
+    $('.messages').empty();
+
     data.results.forEach(function(data) {
       $('.messages').append(createMessage(data));  
     });
   });
 };
+
+app.getRooms = function() {
+  $.ajax({
+    url: 'https://api.parse.com/1/classes/messages',
+    type: 'GET',
+    contentType: 'application/json; charset=utf-8;',
+    success: function (data) {
+      console.log('chatterbox: Rooms receieved');
+    }
+  })
+}
 
 
 // ESCAPING UTILITIES
@@ -88,7 +111,6 @@ var getParameterByName = function(name, url) {
     url = window.location.href;
   }
 
-  console.log(url);
   name = name.replace(/[\[\]]/g, '\\$&');
   var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
   var results = regex.exec(url);
@@ -97,7 +119,10 @@ var getParameterByName = function(name, url) {
   } else if (!results[2]) {
     return '';
   }
-  return decodeURIComponent(results[2].replace(/\+/g, ' '));
+
+  app.username = clean(decodeURIComponent(results[2].replace(/\+/g, ' ')));
+
+  return app.username;
 };
 
 
