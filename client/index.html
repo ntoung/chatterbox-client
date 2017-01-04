@@ -8,6 +8,7 @@
     <!-- dependencies -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
     <script src="bower_components/underscore/underscore-min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <script>
       // YOU DO NOT NEED TO EDIT THIS CODE
       if (!/(&|\?)username=/.test(window.location.search)) {
@@ -30,23 +31,39 @@
         <select id="rooms">
         </select>
       </h4>
+      <button onclick="app.refresh()">Refresh</button>
 
+      <!-- <div id="chats"> -->
+        <div> 
+          <form id="messageForm">
+            Username: <input type="text" id="formUsername"><br>
+            Message: <input type="text" id="formText"><br>
+            <button type="button" role="submit" onclick="app.submit()">Enter</button>
+
+          </form>
+          
+        </div>
+        <p class ="messages"></p>
+        </div>
+      </div>
       <!-- Your HTML goes here! -->
-    </div>
+    <!-- </div> -->
 
-    <button onclick="app.refresh()">Refresh</button>
-
-    <div> 
-      <form id="messageForm">
-        Username: <input type="text" id="formUsername"><br>
-        Message: <input type="text" id="formText"><br>
-      </form>
-      <button type="button" onclick="app.submit()">Enter</button>
-    </div>
-
-    <div id="chats">
-      <p class ="messages"></p>
-
-    </div>
+    
   </body>
+  <script>
+    $(function(){
+        app.init()
+      });
+  </script>
+  <script type="text/javascript">
+
+    $('#rooms').change(function() {
+      console.log('room selected');
+      console.log($('#rooms'));
+      
+      //console.log(app.roomname);
+      app.filter('rooms');
+    });
+  </script>
 </html>

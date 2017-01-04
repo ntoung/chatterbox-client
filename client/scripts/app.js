@@ -1,12 +1,16 @@
 // YOUR CODE HERE:
-var app = {};
+var app = {storage:{messages:[]}};
+
 
 app.init = function() {
   app.username;
+  app.roomname;
   app.fetch();
   app.getRooms();
 
   setInterval(app.refresh, 10000);
+
+  
 };
 
 app.submit = function() {
@@ -43,8 +47,36 @@ app.submit = function() {
   });
 };
 
+app.filter = function(options) {
+  console.log('chatterbox: filtering');
+  if (options === 'rooms') {
 
-app.fetch = app.refresh = function() {
+    app.roomname = _.filter($('#rooms')[0], function(option) {
+      return option.selected;
+    }).outerText;
+
+    console.log(app.roomname);
+
+
+    var filteredRooms = _.filter(app.storage.messages, function(message) {
+      console.log(message.roomname + " " + app.roomname);
+      return message.roomname === app.roomname;
+    });
+
+    debugger;
+
+    app.__displayMessages(filteredRooms);
+
+    // _.each(_.keys(rooms), function(room) {
+    //   room = clean(room);
+
+    //   var option = $('<option></option>').attr('value', room).text(room);
+    //   $('#rooms').append(option);
+    // });
+  }
+}
+
+app.fetch = function() {
   $.ajax({
     // This is the url you should use to communicate with the parse API server.
     url: 'https://api.parse.com/1/classes/messages',
@@ -59,22 +91,46 @@ app.fetch = app.refresh = function() {
       console.error('chatterbox: Failed to receive message', data);
     }
   }).done(function(data) {
-    console.log(data);
-
-    var createMessage = function(data) {
-      var username = $('<strong></strong>').text(clean(data.username));
-      var text = $('<p></p>').text(clean(data.text));
-      
-      return [username, text];
-    };
-
-    $('.messages').empty();
-
-    data.results.forEach(function(data) {
-      $('.messages').append(createMessage(data));  
-    });
+    app.storage.messages = data;
+    app.__displayMessages(data);
   });
 };
+
+
+app.refresh = function() {
+  $.ajax({
+    // This is the url you should use to communicate with the parse API server.
+    url: 'https://api.parse.com/1/classes/messages',
+    type: 'GET',
+    data: {order: '-createdAt', limit: '100'},
+    contentType: 'application/json; charset=utf-8',
+    success: function (data) {
+      console.log('chatterbox: Messages received');
+    },
+    error: function (data) {
+      // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
+      console.error('chatterbox: Failed to receive message', data);
+    }
+  }).done(function(data) {
+    app.storage.messages = data;
+    app.__displayMessages(data);
+  });
+};
+
+app.__displayMessages = function(data) {
+  var createMessage = function(data) {
+    var username = $('<strong></strong>').text(clean(data.username));
+    var text = $('<p></p>').text(clean(data.text));
+    
+    return [username, text];
+  };
+
+  $('.messages').empty();
+
+  data.results.forEach(function(data) {
+    $('.messages').append(createMessage(data));  
+  });
+}
 
 app.getRooms = function() {
   $.ajax({
@@ -86,8 +142,6 @@ app.getRooms = function() {
       console.log('chatterbox: Rooms receieved');
     }
   }).done(function(data) {
-    console.log(data);
-
     var rooms = {};
 
     data.results.forEach(function(message) {
@@ -97,7 +151,6 @@ app.getRooms = function() {
     });
 
     _.each(_.keys(rooms), function(room) {
-      console.log(room);
       room = clean(room);
 
       var option = $('<option></option>').attr('value', room).text(room);
@@ -115,12 +168,18 @@ var ESC_MAP = {
   '<': '&lt;',
   '>': '&gt;',
   '"': '&quot;',
-  '\'': '&#39;'
+  '\'': '&#39;',
+  '(': '&#28;',
+  ')': '&#29;',
+  ':': '&#2A;',
+  ';': '&#2B;',
+  '.': '&#2E;'
+
 };
 
 var clean = function(s, forAttribute) {
   if (!s) { return; }
-  return s.replace(forAttribute ? /[&<>'"]/g : /[&<>]/g, function(c) {
+  return s.replace(forAttribute ? /[&<>'"();:.]/g : /[&<>();:.]/g, function(c) {
     return ESC_MAP[c];
   });
 };
